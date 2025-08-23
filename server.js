@@ -34,12 +34,12 @@ app.post('/api/cotizacion', async (req, res) => {
     <p><strong>Notas adicionales:</strong> ${formData.notas || 'Sin notas'}</p>
   `;
 
-  const msg = {
-    to: 'tu-correo-de-recibo@tudominio.com', // Cambia esta dirección por la tuya
-    from: 'no-reply@valura.mx', // Debe ser la dirección verificada en SendGrid
+const msg = {
+    to: formData.email, // Usar el correo proporcionado en el formulario
+    from: 'contacto.valura@gmail.com', // Debe ser la dirección verificada en SendGrid
     subject: `Nueva Cotización - ${formData.nombre}`,
     html: emailBody,
-  };
+};
 
   try {
     await sgMail.send(msg);
