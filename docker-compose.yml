@@ -7,3 +7,8 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    labels:
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=https://valura.mx,https://www.valura.mx"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=POST,OPTIONS"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type"
+      - "traefik.http.routers.mail-sender.middlewares=cors@docker"
