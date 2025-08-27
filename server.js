@@ -23,7 +23,9 @@ const port = process.env.PORT || 3015;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['https://www.valura.mx', 'https://valura.mx']
+  origin: ['https://valura.mx', 'https://www.valura.mx'],
+  methods: ['POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
 }));
 
 // Ruta para manejar el formulario de cotización
