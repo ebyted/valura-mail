@@ -3,7 +3,7 @@ services:
     container_name: valura-mail
     build: .
     ports:
-      - "3004:3004"
+      - "3015:3015"
     env_file:
       - .env
     restart: unless-stopped

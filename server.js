@@ -1,14 +1,20 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const sgMail = require('@sendgrid/mail');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 
-// Configura la API Key de SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Configura el transporte SMTP (ejemplo con Gmail)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3015;
 
 // Middlewares
 app.use(bodyParser.json());
@@ -19,37 +25,45 @@ app.use(cors());
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
 
-  // Construye el cuerpo del correo con los datos del formulario
-  const emailBody = `
-    <h2>Nueva Cotización de Valura.mx</h2>
-    <p><strong>Nombre:</strong> ${formData.nombre}</p>
-    <p><strong>Teléfono:</strong> ${formData.telefono}</p>
-    <p><strong>Correo electrónico:</strong> ${formData.email}</p>
-    <p><strong>Servicio:</strong> ${formData.servicio}</p>
-    <p><strong>Uso del avalúo:</strong> ${formData.uso_avaluo || 'No aplica'}</p>
-    <p><strong>Tipo de propiedad:</strong> ${formData.tipo_propiedad}</p>
-    <p><strong>Dirección:</strong> ${formData.direccion_calle} #${formData.direccion_numero}, Col. ${formData.direccion_colonia}, ${formData.direccion_ciudad}, ${formData.direccion_estado}</p>
-    <p><strong>m² Terreno:</strong> ${formData.m2_terreno || 'No especificado'}</p>
-    <p><strong>m² Construcción:</strong> ${formData.m2_construccion || 'No especificado'}</p>
-    <p><strong>Notas adicionales:</strong> ${formData.notas || 'Sin notas'}</p>
+  // Template elegante y alineado para el correo de confirmación
+  const confirmationTemplate = `
+    <div style="font-family: Arial, sans-serif; color: #222; max-width: 600px; margin: auto;">
+      <h2 style="color: #005baa; text-align: center;">¡Gracias por tu solicitud, ${formData.nombre}!</h2>
+      <p style="text-align: center;">Hemos recibido tu solicitud de cotización. Aquí tienes el detalle:</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tbody>
+          <tr><td style="padding: 8px; font-weight: bold; width: 40%;">Nombre:</td><td style="padding: 8px;">${formData.nombre}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Teléfono:</td><td style="padding: 8px;">${formData.telefono}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Correo electrónico:</td><td style="padding: 8px;">${formData.email}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Servicio:</td><td style="padding: 8px;">${formData.servicio}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Uso del avalúo:</td><td style="padding: 8px;">${formData.uso_avaluo || 'No aplica'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Tipo de propiedad:</td><td style="padding: 8px;">${formData.tipo_propiedad}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Dirección:</td><td style="padding: 8px;">${formData.direccion_calle} #${formData.direccion_numero}, Col. ${formData.direccion_colonia}, ${formData.direccion_ciudad}, ${formData.direccion_estado}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">m² Terreno:</td><td style="padding: 8px;">${formData.m2_terreno || 'No especificado'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">m² Construcción:</td><td style="padding: 8px;">${formData.m2_construccion || 'No especificado'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Notas adicionales:</td><td style="padding: 8px;">${formData.notas || 'Sin notas'}</td></tr>
+        </tbody>
+      </table>
+      <p style="text-align: center;">En breve uno de nuestros asesores se pondrá en contacto contigo.</p>
+      <hr>
+      <p style="font-size: 0.9em; color: #555; text-align: center;">Este correo es una confirmación automática. Si tienes dudas, responde a este mensaje.</p>
+      <p style="font-size: 0.9em; color: #555; text-align: center;">Valura.mx</p>
+    </div>
   `;
 
-const msg = {
-    to: formData.email, // Usar el correo proporcionado en el formulario
-    from: 'contacto.valura@gmail.com', // Debe ser la dirección verificada en SendGrid
-    subject: `Nueva Cotización - ${formData.nombre}`,
-    html: emailBody,
-};
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: formData.email,
+    subject: `Confirmación de solicitud - Valura.mx`,
+    html: confirmationTemplate
+  };
 
   try {
-    await sgMail.send(msg);
-    console.log('Correo enviado con éxito.');
+    await transporter.sendMail(mailOptions);
+    console.log('Correo de confirmación enviado con éxito.');
     res.status(200).send('Cotización enviada. ¡Gracias!');
   } catch (error) {
     console.error('Error al enviar el correo:', error);
-    if (error.response) {
-      console.error(error.response.body);
-    }
     res.status(500).send('Error al enviar la cotización. Inténtalo de nuevo más tarde.');
   }
 });
