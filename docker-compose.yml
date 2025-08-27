@@ -12,3 +12,9 @@ services:
       - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=POST,OPTIONS"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type"
       - "traefik.http.routers.mail-sender.middlewares=cors@docker"
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
