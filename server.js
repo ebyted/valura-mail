@@ -23,7 +23,7 @@ const port = process.env.PORT || 3015;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ['http://localhost:3015', 'https://valura.mx/api/cotizacion', 'https://www.valura.mx', 'http://valura-homepage'],
+  origin: ['http://localhost','http://localhost:3015', 'https://valura.mx/api/cotizacion', 'https://www.valura.mx', 'http://valura-homepage'],
   methods: ['POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
 }));
