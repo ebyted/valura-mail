@@ -10,6 +10,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
@@ -25,11 +28,15 @@ app.use(cors());
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
 
-  // Template elegante y alineado para el correo de confirmación
+  // Template formal y elegante para el correo de confirmación
   const confirmationTemplate = `
     <div style="font-family: Arial, sans-serif; color: #222; max-width: 600px; margin: auto;">
-      <h2 style="color: #005baa; text-align: center;">¡Gracias por tu solicitud, ${formData.nombre}!</h2>
-      <p style="text-align: center;">Hemos recibido tu solicitud de cotización. Aquí tienes el detalle:</p>
+      <h2 style="color: #005baa; text-align: center;">¡Tu solicitud está en proceso! – Valura</h2>
+      <p>Hola <strong>${formData.nombre}</strong>,</p>
+      <p>Gracias por llenar el formulario.<br>
+      Ya recibimos tu información y estamos preparando tu propuesta económica para el servicio de <strong>${formData.servicio}</strong>.<br>
+      Te enviaremos los detalles para que puedas revisarlos y avanzar al siguiente paso.<br>
+      Queremos que el proceso sea claro, rápido y sin complicaciones para ti.</p>
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
         <tbody>
           <tr><td style="padding: 8px; font-weight: bold; width: 40%;">Nombre:</td><td style="padding: 8px;">${formData.nombre}</td></tr>
@@ -44,10 +51,10 @@ app.post('/api/cotizacion', async (req, res) => {
           <tr><td style="padding: 8px; font-weight: bold;">Notas adicionales:</td><td style="padding: 8px;">${formData.notas || 'Sin notas'}</td></tr>
         </tbody>
       </table>
-      <p style="text-align: center;">En breve uno de nuestros asesores se pondrá en contacto contigo.</p>
+      <p>Un saludo,<br>Equipo Valura</p>
+      <p style="font-size: 0.9em; color: #555; text-align: center;">Claridad, valor y forma en Valura.mx</p>
       <hr>
       <p style="font-size: 0.9em; color: #555; text-align: center;">Este correo es una confirmación automática. Si tienes dudas, responde a este mensaje.</p>
-      <p style="font-size: 0.9em; color: #555; text-align: center;">Valura.mx</p>
     </div>
   `;
 
