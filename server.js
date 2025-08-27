@@ -31,6 +31,7 @@ app.use(cors({
 // Ruta para manejar el formulario de cotización
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
+  const servicioNombre = formData.servicio_label || formData.servicio;
 
   // Template formal y elegante para el correo de confirmación
   const confirmationTemplate = `
@@ -38,7 +39,7 @@ app.post('/api/cotizacion', async (req, res) => {
       <h2 style="color: #005baa; text-align: center;">¡Tu solicitud está en proceso! – Valura</h2>
       <p>Hola <strong>${formData.nombre}</strong>,</p>
       <p>Gracias por llenar el formulario.<br>
-      Ya recibimos tu información y estamos preparando tu propuesta económica para el servicio de <strong>${formData.servicio}</strong>.<br>
+      Ya recibimos tu información y estamos preparando tu propuesta económica para el servicio de <strong>${servicioNombre}</strong>.<br>
       Te enviaremos los detalles para que puedas revisarlos y avanzar al siguiente paso.<br>
       Queremos que el proceso sea claro, rápido y sin complicaciones para ti.</p>
       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
