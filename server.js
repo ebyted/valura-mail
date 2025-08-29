@@ -23,7 +23,7 @@ const corsOptions = {
     cb(null, WHITELIST.has(origin));
   },
   methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Accept'],
   credentials: true,               // si envías cookies/Authorization
   optionsSuccessStatus: 204,
 };
