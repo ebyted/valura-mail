@@ -33,7 +33,7 @@ app.use(cors({
     'https://www.valura.mx:3015',
   ],
   methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Accept'],
 }));
 
 // Ruta para manejar el formulario de cotización
