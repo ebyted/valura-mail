@@ -10,8 +10,7 @@ services:
     labels:
       - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=https://valura.mx,https://www.valura.mx"
       - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=POST,OPTIONS"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,Accept"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Accept"
       - "traefik.http.routers.mail-sender.middlewares=cors@docker"
       - "traefik.http.routers.mail-sender.rule=PathPrefix(`/api/cotizacion`)"
       - "traefik.http.routers.mail-sender.entrypoints=websecure"
