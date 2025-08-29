@@ -13,6 +13,9 @@ services:
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,Accept"
       - "traefik.http.middlewares.cors.headers.accessControlAllowCredentials=true"
       - "traefik.http.routers.mail-sender.middlewares=cors@docker"
+      - "traefik.http.routers.mail-sender.rule=PathPrefix(`/api/cotizacion`)"
+      - "traefik.http.routers.mail-sender.entrypoints=websecure"
+      - "traefik.http.routers.mail-sender.tls=true"
     networks:
       - dokploy-network
 
