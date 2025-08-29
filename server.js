@@ -28,7 +28,9 @@ app.use(cors({
     'http://localhost:3015',
     'https://valura.mx',
     'https://www.valura.mx',
-    'http://valura-homepage'
+    'http://valura-homepage',
+    'https://valura.mx:3015',
+    'https://www.valura.mx:3015',
   ],
   methods: ['POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
