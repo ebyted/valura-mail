@@ -86,7 +86,7 @@ app.post('/api/cotizacion', async (req, res) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Correo de confirmación enviado con éxito.');
+    console.log('Correo de confirmación enviado exitosamente.');
     res.status(200).send('Cotización enviada. ¡Gracias!');
   } catch (error) {
     console.error('Error al enviar el correo:', error);
