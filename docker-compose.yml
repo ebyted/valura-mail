@@ -2,6 +2,8 @@ services:
   mail-sender:
     container_name: valura-mail
     build: .
+    ports:
+      - "3015:3015"
     restart: unless-stopped
     labels:
       - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=https://valura.mx,https://www.valura.mx"
