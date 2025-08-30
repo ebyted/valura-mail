@@ -4,78 +4,82 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 
-const app = express();
-
-// Log de cada petición recibida para depuración
-app.use((req, res, next) => {
-  console.log(`[DEPURACIÓN] ${req.method} ${req.originalUrl}`);
-  next();
-});
-const port = process.env.PORT || 3015;
-
-// ===== CORS (ANTES que bodyParser) =====
-const WHITELIST = new Set([
-  'https://valura.mx',
-  'https://www.valura.mx',
-  'http://localhost',
-  'http://localhost:3015',
-  'http://localhost:5173',
-]);
-
-const corsOptions = {
-  origin(origin, cb) {
-    // Permitir herramientas tipo curl/postman (sin Origin)
-    if (!origin) return cb(null, true);
-    cb(null, WHITELIST.has(origin));
-  },
-  methods: ['POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept'],
-  credentials: true,               // si envías cookies/Authorization
-  optionsSuccessStatus: 204,
-};
-
-app.use((req, res, next) => {
-  // Para caches/proxies: indica que depende del Origin
-  res.header('Vary', 'Origin');
-  next();
-});
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Habilita preflight global
-
-// ===== Body parsers DESPUÉS de CORS =====
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// ===== Nodemailer =====
+// Configura el transporte SMTP (ejemplo con Gmail)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-  tls: { rejectUnauthorized: false },
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
-// ===== Ruta =====
+const app = express();
+const port = process.env.PORT || 3015;
+
+// Middlewares
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: ['http://localhost:3015', 'https://valura.mx', 'https://www.valura.mx', 'http://valura-homepage'],
+  methods: ['POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+}));
+
+// Ruta para manejar el formulario de cotización
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
   const servicioNombre = formData.servicio_label || formData.servicio;
 
-  const confirmationTemplate = `www.sanchodistribuidora.com`;
+  // Template formal y elegante para el correo de confirmación
+  const confirmationTemplate = `
+    <div style="font-family: Arial, sans-serif; color: #222; max-width: 600px; margin: auto;">
+      <h2 style="color: #005baa; text-align: center;">¡Tu solicitud está en proceso! – Valura</h2>
+      <p>Hola <strong>${formData.nombre}</strong>,</p>
+      <p>Gracias por llenar el formulario.<br>
+      Ya recibimos tu información y estamos preparando tu propuesta económica para el servicio de <strong>${servicioNombre}</strong>.<br>
+      Te enviaremos los detalles para que puedas revisarlos y avanzar al siguiente paso.<br>
+      Queremos que el proceso sea claro, rápido y sin complicaciones para ti.</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tbody>
+          <tr><td style="padding: 8px; font-weight: bold; width: 40%;">Nombre:</td><td style="padding: 8px;">${formData.nombre}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Teléfono:</td><td style="padding: 8px;">${formData.telefono}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Correo electrónico:</td><td style="padding: 8px;">${formData.email}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Servicio:</td><td style="padding: 8px;">${formData.servicio}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Uso del avalúo:</td><td style="padding: 8px;">${formData.uso_avaluo || 'No aplica'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Tipo de propiedad:</td><td style="padding: 8px;">${formData.tipo_propiedad}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Dirección:</td><td style="padding: 8px;">${formData.direccion_calle} #${formData.direccion_numero}, Col. ${formData.direccion_colonia}, ${formData.direccion_ciudad}, ${formData.direccion_estado}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">m² Terreno:</td><td style="padding: 8px;">${formData.m2_terreno || 'No especificado'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">m² Construcción:</td><td style="padding: 8px;">${formData.m2_construccion || 'No especificado'}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Notas adicionales:</td><td style="padding: 8px;">${formData.notas || 'Sin notas'}</td></tr>
+        </tbody>
+      </table>
+      <p>Un saludo,<br>Equipo Valura</p>
+      <p style="font-size: 0.9em; color: #555; text-align: center;">Claridad, valor y forma en Valura.mx</p>
+      <hr>
+      <p style="font-size: 0.9em; color: #555; text-align: center;">Este correo es una confirmación automática. Si tienes dudas, responde a este mensaje.</p>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: formData.email,
+    subject: `Confirmación de solicitud - Valura.mx`,
+    html: confirmationTemplate
+  };
 
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: formData.email,
-      subject: `Confirmación de solicitud - Valura.mx`,
-      html: confirmationTemplate,
-    });
-
-    // Respuesta JSON estándar
-    res.status(200).json({ ok: true, message: 'Cotización enviada. ¡Gracias!' });
+    await transporter.sendMail(mailOptions);
+    console.log('Correo de confirmación enviado con éxito.');
+    res.status(200).send('Cotización enviada. ¡Gracias!');
   } catch (error) {
     console.error('Error al enviar el correo:', error);
-    res.status(500).json({ ok: false, message: 'Error al enviar la cotización.' });
+    res.status(500).send('Error al enviar la cotización. Inténtalo de nuevo más tarde.');
   }
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor escuchando en http://0.0.0.0:${port}`);
+app.listen(port, () => {
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
