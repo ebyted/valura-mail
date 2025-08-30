@@ -2,8 +2,6 @@ services:
   mail-sender:
     container_name: valura-mail
     build: .
-    nv_file:
-      - .env
     restart: unless-stopped
     labels:
       - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=https://valura.mx,https://www.valura.mx"
