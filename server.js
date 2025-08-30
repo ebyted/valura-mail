@@ -28,7 +28,7 @@ function acentuarServicio(servicio) {
     case 'inspeccion':
       return 'inspección';
     default:
-      return servicio;
+      return 'error';
   }
 }
 
@@ -51,7 +51,7 @@ app.post('/api/cotizacion', async (req, res) => {
   const confirmationTemplate = `
     <div style="font-family: Arial, sans-serif; color: #222; max-width: 600px; margin: auto;">
       <h2 style="color: #005baa; text-align: center;">¡Tu solicitud está en proceso! – Valura</h2>
-      <p>Hola <strong>${formData.nombre}</strong>,</p>
+      <p>Hola sr <strong>${formData.nombre}</strong>,</p>
       <p>Gracias por llenar el formulario.<br>
       Ya recibimos tu información y estamos preparando tu propuesta económica para el servicio de <strong>${servicioNombre}</strong>.<br>
       Te enviaremos los detalles para que puedas revisarlos y avanzar al siguiente paso.<br>
