@@ -44,6 +44,7 @@ app.use(cors({
 // Ruta para manejar el formulario de cotización
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
+  console.log('Valor recibido en servicio:', formData.servicio);
   const servicioNombre = acentuarServicio(formData.servicio_label || formData.servicio);
 
   // Template formal y elegante para el correo de confirmación
