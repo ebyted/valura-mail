@@ -2,9 +2,7 @@ services:
   mail-sender:
     container_name: valura-mail
     build: .
-    ports:
-      - "3015:3015"
-    env_file:
+    nv_file:
       - .env
     restart: unless-stopped
     labels:
