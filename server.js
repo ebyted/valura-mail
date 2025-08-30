@@ -18,6 +18,19 @@ const transporter = nodemailer.createTransport({
 
 const app = express();
 const port = process.env.PORT || 3015;
+// Función para acentuar correctamente los nombres de servicio
+function acentuarServicio(servicio) {
+  switch ((servicio || '').toLowerCase()) {
+    case 'estimacion':
+      return 'estimación';
+    case 'avaluo':
+      return 'avalúo';
+    case 'inspeccion':
+      return 'inspección';
+    default:
+      return servicio;
+  }
+}
 
 // Middlewares
 app.use(bodyParser.json());
@@ -31,7 +44,7 @@ app.use(cors({
 // Ruta para manejar el formulario de cotización
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
-  const servicioNombre = formData.servicio_label || formData.servicio;
+  const servicioNombre = acentuarServicio(formData.servicio_label || formData.servicio);
 
   // Template formal y elegante para el correo de confirmación
   const confirmationTemplate = `
@@ -47,7 +60,7 @@ app.post('/api/cotizacion', async (req, res) => {
           <tr><td style="padding: 8px; font-weight: bold; width: 40%;">Nombre:</td><td style="padding: 8px;">${formData.nombre}</td></tr>
           <tr><td style="padding: 8px; font-weight: bold;">Teléfono:</td><td style="padding: 8px;">${formData.telefono}</td></tr>
           <tr><td style="padding: 8px; font-weight: bold;">Correo electrónico:</td><td style="padding: 8px;">${formData.email}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold;">Servicio:</td><td style="padding: 8px;">${formData.servicio}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold;">Servicio:</td><td style="padding: 8px;">${acentuarServicio(formData.servicio)}</td></tr>
           <tr><td style="padding: 8px; font-weight: bold;">Uso del avalúo:</td><td style="padding: 8px;">${formData.uso_avaluo || 'No aplica'}</td></tr>
           <tr><td style="padding: 8px; font-weight: bold;">Tipo de propiedad:</td><td style="padding: 8px;">${formData.tipo_propiedad}</td></tr>
           <tr><td style="padding: 8px; font-weight: bold;">Dirección:</td><td style="padding: 8px;">${formData.direccion_calle} #${formData.direccion_numero}, Col. ${formData.direccion_colonia}, ${formData.direccion_ciudad}, ${formData.direccion_estado}</td></tr>
