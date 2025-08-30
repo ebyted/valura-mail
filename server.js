@@ -5,6 +5,12 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 
 const app = express();
+
+// Log de cada petición recibida para depuración
+app.use((req, res, next) => {
+  console.log(`[DEPURACIÓN] ${req.method} ${req.originalUrl}`);
+  next();
+});
 const port = process.env.PORT || 3015;
 
 // ===== CORS (ANTES que bodyParser) =====
