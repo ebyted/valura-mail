@@ -47,6 +47,7 @@ app.use(cors({
 app.get('/api/hola', (req, res) => {
   res.json({ mensaje: 'Hola mundo' });
 });
+
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
   console.log('Valor recibido en servicio:', formData.servicio);
