@@ -20,16 +20,17 @@ const app = express();
 const port = process.env.PORT || 3015;
 // Función para acentuar correctamente los nombres de servicio
 function acentuarServicio(servicio) {
-  switch ((servicio || '').toLowerCase()) {
-    case 'estimacion':
-      return 'estimación';
-    case 'avaluo':
-      return 'avalúo';
-    case 'inspeccion':
-      return 'inspección';
-    default:
-      return 'error';
+  let s = (servicio || '').toLowerCase();
+  s = s.replace(/estimacion/g, 'estimación');
+  s = s.replace(/avaluo/g, 'avalúo');
+  s = s.replace(/inspeccion/g, 'inspección');
+  // Si el original tenía mayúsculas, respétalas en el resultado
+  // (opcional, para mantener formato)
+  // Si quieres que la primera letra sea mayúscula:
+  if (servicio && servicio[0] === servicio[0].toUpperCase()) {
+    s = s.charAt(0).toUpperCase() + s.slice(1);
   }
+  return s;
 }
 
 // Middlewares
@@ -42,6 +43,10 @@ app.use(cors({
 }));
 
 // Ruta para manejar el formulario de cotización
+// Endpoint simple para prueba
+app.get('/api/hola', (req, res) => {
+  res.json({ mensaje: 'Hola mundo' });
+});
 app.post('/api/cotizacion', async (req, res) => {
   const formData = req.body;
   console.log('Valor recibido en servicio:', formData.servicio);
